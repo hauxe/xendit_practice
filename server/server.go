@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
+	jobs "github.com/hauxe/xendit_pratice/background_jobs"
 	"github.com/hauxe/xendit_pratice/cacher"
 	"github.com/hauxe/xendit_pratice/marvel"
 	"golang.org/x/sync/singleflight"
@@ -20,6 +22,8 @@ const (
 
 	API_PUBLIC_KEY  = "API_PUCLIC_KEY"
 	API_PRIVATE_KEY = "API_PRIVATE_KEY"
+
+	UpdateCharacterJobMinute = 24 * 60 // 1 day
 )
 
 type Server struct {
@@ -27,6 +31,7 @@ type Server struct {
 	requestGroup singleflight.Group
 	marvelAPI    *marvel.API
 	cacher       cacher.Cacher
+	shutdown     chan struct{}
 }
 
 // NewServer create server
@@ -44,18 +49,29 @@ func NewServer() (*Server, error) {
 		router:    mux.NewRouter(),
 		marvelAPI: marvel.NewAPI(apiPublicKey, apiPrivateKey),
 		cacher:    cacher.NewCacher(),
+		shutdown:  make(chan struct{}),
 	}, nil
 }
 
 // Start server and listenning on 8080 port
 // this function is a blocking function
 func (s *Server) Start() {
+	defer close(s.shutdown)
+	// start async job update character info
+	// when the server shutting down, it will cause all async job shutdown too
+	jobs.StartUpdateCharacterListJob(s.shutdown,
+		time.Minute*time.Duration(UpdateCharacterJobMinute),
+		s.cacher,
+		Characters_Cache_Key,
+		s.marvelAPI,
+	)
+
+	// build routes
 	s.router.Path("/characters").HandlerFunc(s.GetListCharacters)
 	s.router.Path("/characters/{id:[0-9]+}").HandlerFunc(s.GetCharacterInfo)
 	if err := http.ListenAndServe(":8080", s.router); err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 func (s *Server) GetListCharacters(w http.ResponseWriter, r *http.Request) {
@@ -100,10 +116,10 @@ func (s *Server) GetCharacterInfo(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("invalid character id"))
 		return
 	}
-	v, err, _ := s.requestGroup.Do(Characters_Cache_Key, func() (interface{}, error) {
+	cacheKey := Character_Info_Cache_Key + "_" + id
+	v, err, _ := s.requestGroup.Do(cacheKey, func() (interface{}, error) {
 		// get from cache first
 		info := new(marvel.MarvelCharacter)
-		cacheKey := Character_Info_Cache_Key + "_" + id
 		value, ok := s.cacher.Get(cacheKey)
 		if ok {
 			err := json.Unmarshal([]byte(value), info)

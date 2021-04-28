@@ -97,7 +97,7 @@ func (api *API) GetCharacterInfo(id int) (*MarvelCharacter, error) {
 // GetListCharacters get all characters
 func (api *API) GetAllCharacters() (result []int, _ error) {
 	// get first index to determine the total count
-	list, total, err := api.doGetListCharacters(0)
+	list, total, err := api.DoGetListCharacters(0, API_LIMIT)
 	if err != nil {
 		return nil, fmt.Errorf("get api index 0 error: %w", err)
 	}
@@ -145,7 +145,7 @@ func (api *API) getCharacterListJob(ctx context.Context, indexCh <-chan int, res
 	result := new(apiResult)
 	for i := range indexCh {
 		result.index = i
-		list, _, err := api.doGetListCharacters(i)
+		list, _, err := api.DoGetListCharacters(i, API_LIMIT)
 		if err != nil {
 			result.err = err
 			select {
@@ -164,8 +164,8 @@ func (api *API) getCharacterListJob(ctx context.Context, indexCh <-chan int, res
 	}
 }
 
-func (api *API) doGetListCharacters(index int) ([]int, int, error) {
-	offset := index * API_LIMIT
+func (api *API) DoGetListCharacters(index int, limit int) ([]int, int, error) {
+	offset := index * limit
 	ts := time.Now().Unix()
 	hash := md5.Sum([]byte(fmt.Sprintf("%d%s%s", ts, api.apiPrivateKey, api.apiPublicKey)))
 	u := url.URL{
@@ -177,7 +177,7 @@ func (api *API) doGetListCharacters(index int) ([]int, int, error) {
 	query.Set("ts", strconv.FormatInt(ts, 10))
 	query.Set("apikey", api.apiPublicKey)
 	query.Set("hash", fmt.Sprintf("%x", hash))
-	query.Set("limit", strconv.Itoa(API_LIMIT))
+	query.Set("limit", strconv.Itoa(limit))
 	query.Set("offset", strconv.Itoa(offset))
 	u.RawQuery = query.Encode()
 	resp, err := http.Get(u.String())
