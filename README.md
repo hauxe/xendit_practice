@@ -33,6 +33,16 @@ Get list of all Marvel's characters id
 /characters/{character_id}
 Get character innformation (ID, Name, Description) of a character by id
 
+## Test
+
+Run all tests in the service and check for test coverage
+
+```bash
+go test -v -cover -race ./...
+```
+
+Current converage: 63.4%
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
