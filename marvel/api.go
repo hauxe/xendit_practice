@@ -14,6 +14,7 @@ import (
 
 const (
 	API_LIMIT = 100
+	API_HOST  = "gateway.marvel.com"
 )
 
 // API defines api properties
@@ -26,9 +27,12 @@ type API struct {
 }
 
 // NewAPI creates new api object
-func NewAPI(publicKey, privateKey string) *API {
+func NewAPI(host, publicKey, privateKey string) *API {
+	if host == "" {
+		host = API_HOST
+	}
 	return &API{
-		host:          "gateway.marvel.com",
+		host:          host,
 		apiPublicKey:  publicKey,
 		apiPrivateKey: privateKey,
 	}
@@ -91,7 +95,11 @@ func (api *API) GetCharacterInfo(id int) (*MarvelCharacter, error) {
 	if len(apiResult.Data.Results) == 0 {
 		return nil, fmt.Errorf("no character found for id %d", id)
 	}
-	return apiResult.Data.Results[0], nil
+	info := apiResult.Data.Results[0]
+	if info.ID != id {
+		return nil, fmt.Errorf("invalid id repsponded: want %d got %d", id, info.ID)
+	}
+	return info, nil
 }
 
 // GetListCharacters get all characters

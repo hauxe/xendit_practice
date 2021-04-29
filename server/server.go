@@ -47,7 +47,7 @@ func NewServer() (*Server, error) {
 	}
 	return &Server{
 		router:    mux.NewRouter(),
-		marvelAPI: marvel.NewAPI(apiPublicKey, apiPrivateKey),
+		marvelAPI: marvel.NewAPI("", apiPublicKey, apiPrivateKey),
 		cacher:    cacher.NewCacher(),
 		shutdown:  make(chan struct{}),
 	}, nil
@@ -116,7 +116,7 @@ func (s *Server) GetCharacterInfo(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("invalid character id"))
 		return
 	}
-	cacheKey := Character_Info_Cache_Key + "_" + id
+	cacheKey := buildCharacterInfoCacheKey(charID)
 	v, err, _ := s.requestGroup.Do(cacheKey, func() (interface{}, error) {
 		// get from cache first
 		info := new(marvel.MarvelCharacter)
@@ -150,4 +150,8 @@ func (s *Server) GetCharacterInfo(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(info)
 	// log error
 	log.Println("encode error", err)
+}
+
+func buildCharacterInfoCacheKey(id int) string {
+	return Character_Info_Cache_Key + "_" + strconv.Itoa(id)
 }

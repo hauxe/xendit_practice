@@ -29,37 +29,37 @@ func StartUpdateCharacterListJob(shutdown <-chan struct{},
 				// got a shutdown signal, quit the process
 				return
 			case <-ticker.C:
-				shouldUpdate, err := checkMarvelUpdate(c, cacheKey, marvelAPI)
-				if err != nil {
-					// if error occur we shouldn't interupt the process
-					// just log for monitoring/alerting
-					log.Println("[AsyncJob]Check Marvel Update got error", err)
-					// becareful of break
-					// this break the select statement
-					// if somehow the code is copied for refactor it may break unexpected statement: for, if
-					break
-				}
-				if shouldUpdate {
-					// get the new list and update cache
-					list, err := marvelAPI.GetAllCharacters()
-					if err != nil {
-						// just log for monitoring/alerting
-						log.Println("[AsyncJob]Check Marvel Update got error", err)
-						// becareful of break
-						break
-					}
-					b, err := json.Marshal(&list)
-					if err != nil {
-						// just log for monitoring/alerting
-						log.Println("[AsyncJob]Check Marvel Update got error", err)
-						// becareful of break
-						break
-					}
-					c.Set(cacheKey, string(b))
-				}
+				updateMarvelCharacterList(c, cacheKey, marvelAPI)
 			}
 		}
 	}()
+}
+
+func updateMarvelCharacterList(c cacher.Cacher,
+	cacheKey string,
+	marvelAPI *marvel.API) {
+	shouldUpdate, err := checkMarvelUpdate(c, cacheKey, marvelAPI)
+	if err != nil {
+		// if error occur we shouldn't interupt the process
+		// just log for monitoring/alerting
+		log.Println("[AsyncJob]Check Marvel Update got error", err)
+		return
+	}
+	if shouldUpdate {
+		// get the new list and update cache
+		list, err := marvelAPI.GetAllCharacters()
+		if err != nil {
+			// just log for monitoring/alerting
+			log.Println("[AsyncJob]Check Marvel Update got error", err)
+			return
+		}
+		b, err := json.Marshal(&list)
+		if err != nil {
+			// just log for monitoring/alerting
+			log.Println("[AsyncJob]Check Marvel Update got error", err)
+		}
+		c.Set(cacheKey, string(b))
+	}
 }
 
 func checkMarvelUpdate(c cacher.Cacher, cacheKey string, marvelAPI *marvel.API) (bool, error) {
