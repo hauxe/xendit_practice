@@ -69,6 +69,7 @@ func (s *Server) Start() {
 	// build routes
 	s.router.Path("/characters").HandlerFunc(s.GetListCharacters)
 	s.router.Path("/characters/{id:[0-9]+}").HandlerFunc(s.GetCharacterInfo)
+	fmt.Println("Start Listenning at :8080")
 	if err := http.ListenAndServe(":8080", s.router); err != nil {
 		log.Fatal(err)
 	}
