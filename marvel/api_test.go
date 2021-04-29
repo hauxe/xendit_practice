@@ -24,7 +24,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler("invalid json"))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		info, err := api.GetCharacterInfo(0)
 		require.Error(t, err)
@@ -35,7 +35,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(`{"code": 409}`))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		info, err := api.GetCharacterInfo(0)
 		require.Error(t, err)
@@ -46,7 +46,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(`{"code": 200}`))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		info, err := api.GetCharacterInfo(0)
 		require.Error(t, err)
@@ -57,7 +57,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleJsonFromMarvel))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		info, err := api.GetCharacterInfo(0)
 		require.Error(t, err)
@@ -68,7 +68,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleJsonFromMarvel))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		id := 1011334
 		info, err := api.GetCharacterInfo(id)
@@ -86,7 +86,7 @@ func TestGetAllCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, err := api.GetAllCharacters()
 		require.NoError(t, err)
@@ -98,18 +98,18 @@ func TestGetAllCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, err := api.GetAllCharacters()
 		require.NoError(t, err)
-		require.Len(t, list, 1000)
+		require.GreaterOrEqual(t, len(list), 1000)
 	})
 	t.Run("flaky_error", func(t *testing.T) {
 		t.Parallel()
-		testServer, err := test.NewTestServer(test.NewMockFlakyHandler(test.SampleAllData, 5))
+		testServer, err := test.NewTestServer(test.NewMockFlakyHandler(test.SampleAllData, 100))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, err := api.GetAllCharacters()
 		require.Error(t, err)
@@ -143,7 +143,7 @@ func TestGetCharacterListJob(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleJsonFromMarvel))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		indexCh := make(chan int)
 		resultCh := make(chan *apiResult)
@@ -178,7 +178,7 @@ func TestDoGetListCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler("invalid json"))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, total, err := api.DoGetListCharacters(0, API_LIMIT)
 		require.Error(t, err)
@@ -190,7 +190,7 @@ func TestDoGetListCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(`{"code": 409}`))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, total, err := api.DoGetListCharacters(0, API_LIMIT)
 		require.Error(t, err)
@@ -202,7 +202,7 @@ func TestDoGetListCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(`{"code": 200}`))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, total, err := api.DoGetListCharacters(0, API_LIMIT)
 		require.Error(t, err)
@@ -214,7 +214,7 @@ func TestDoGetListCharacters(t *testing.T) {
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleJsonFromMarvel))
 		require.NoError(t, err)
 		api := &API{
-			host: testServer.URL,
+			host: test.GetHost(testServer.URL),
 		}
 		list, total, err := api.DoGetListCharacters(0, API_LIMIT)
 		require.NoError(t, err)

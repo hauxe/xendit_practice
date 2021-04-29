@@ -6,10 +6,19 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
+
+func GetHost(s string) string {
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	return u.Host
+}
 
 func NewTestServer(handler http.Handler) (*httptest.Server, error) {
 	ts := httptest.NewUnstartedServer(handler)

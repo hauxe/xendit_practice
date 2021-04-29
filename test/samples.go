@@ -244,17 +244,17 @@ var SampleAllData = `{
 		{
 		  "id": 1011334,
 		  "name": "1-D Man",
-		  "description": "",
+		  "description": ""
 		},
 		{
 		  "id": 1011335,
 		  "name": "2-D Man",
-		  "description": "",
+		  "description": ""
 		},
 		{
 		  "id": 1011336,
 		  "name": "3-D Man",
-		  "description": "",
+		  "description": ""
 		}
 	  ]
 	}
@@ -264,25 +264,24 @@ var SampleAllData1stCall = `{
 	"code": 200,
 	"status": "Ok",
 	"data": {
-	  "limit": 100,
-	  "total": 3,
-	  "count": 3,
-	  "results": [
-		{
-		  "id": 1011334,
-		  "name": "1-D Man",
-		  "description": "test description",
-		},
-		{
-		  "id": 1011335,
-		  "name": "2-D Man",
-		  "description": "",
-		},
-		{
-		  "id": 1011336,
-		  "name": "3-D Man",
-		  "description": "",
-		}
-	  ]
+		"limit": 100,
+		"total": 3,
+		"count": 3,
+		"results": [{
+				"id": 1011334,
+				"name": "1-D Man",
+				"description": "test description"
+			},
+			{
+				"id": 1011335,
+				"name": "2-D Man",
+				"description": ""
+			},
+			{
+				"id": 1011336,
+				"name": "3-D Man",
+				"description": ""
+			}
+		]
 	}
-  }`
+}`

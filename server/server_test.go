@@ -37,7 +37,7 @@ func TestGetListCharacters(t *testing.T) {
 		t.Parallel()
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		s := &Server{
 			marvelAPI: api,
 			cacher:    cacher.NewCacher(),
@@ -55,7 +55,7 @@ func TestGetListCharacters(t *testing.T) {
 		t.Parallel()
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		s := &Server{
 			marvelAPI: api,
 			cacher:    cacher.NewCacher(),
@@ -71,7 +71,7 @@ func TestGetListCharacters(t *testing.T) {
 				require.NotNil(t, rec.Body)
 				dec := json.NewDecoder(rec.Body)
 				var list []int
-				err = dec.Decode(&list)
+				err := dec.Decode(&list)
 				require.NoError(t, err)
 				require.EqualValues(t, []int{1011334, 1011335, 1011336}, list)
 			}()
@@ -121,7 +121,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		id := 1011334
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		s := &Server{
 			marvelAPI: api,
 			cacher:    cacher.NewCacher(),
@@ -148,7 +148,7 @@ func TestGetCharacterInfo(t *testing.T) {
 		id := 1011334
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		s := &Server{
 			marvelAPI: api,
 			cacher:    cacher.NewCacher(),
@@ -170,7 +170,7 @@ func TestGetCharacterInfo(t *testing.T) {
 				require.NotNil(t, rec.Body)
 				dec := json.NewDecoder(rec.Body)
 				var result marvel.MarvelCharacter
-				err = dec.Decode(&result)
+				err := dec.Decode(&result)
 				require.NoError(t, err)
 				require.Equal(t, id, result.ID)
 				require.Equal(t, "1-D Man", result.Name)

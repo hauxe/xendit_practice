@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -32,9 +33,10 @@ func NewAPI(host, publicKey, privateKey string) *API {
 		host = API_HOST
 	}
 	return &API{
-		host:          host,
-		apiPublicKey:  publicKey,
-		apiPrivateKey: privateKey,
+		host:            host,
+		apiPublicKey:    publicKey,
+		apiPrivateKey:   privateKey,
+		concurrentLimit: runtime.NumCPU(),
 	}
 }
 
@@ -113,6 +115,9 @@ func (api *API) GetAllCharacters() (result []int, _ error) {
 	if len(list) >= total {
 		return
 	}
+	if api.concurrentLimit <= 0 {
+		api.concurrentLimit = runtime.NumCPU()
+	}
 	indexCh := make(chan int, api.concurrentLimit)
 	resultCh := make(chan *apiResult, api.concurrentLimit)
 	// create maximum worker to grab the data concurrently
@@ -124,25 +129,31 @@ func (api *API) GetAllCharacters() (result []int, _ error) {
 	for i := 0; i < api.concurrentLimit; i++ {
 		go api.getCharacterListJob(ctx, indexCh, resultCh)
 	}
-	num := total / 100
-	if total%100 != 0 {
+	num := total / API_LIMIT
+	if total%API_LIMIT != 0 {
 		num += 1
 	}
 	i := 1
+	received := 0
+	feeder := indexCh
 	for {
 		select {
-		case indexCh <- i:
+		case feeder <- i:
 			i++
 			if i >= num {
-				indexCh = nil
+				feeder = nil
 			}
 		case apiResult := <-resultCh:
+			received++
 			if apiResult.err != nil {
 				return nil, fmt.Errorf("get api index %d error: %w", apiResult.index, apiResult.err)
 			}
 			result = append(result, apiResult.listIDs...)
 			if len(result) >= total {
 				return
+			}
+			if received >= num-1 {
+				feeder = indexCh
 			}
 		}
 	}

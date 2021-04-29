@@ -105,7 +105,9 @@ func (s *Server) GetListCharacters(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(&list)
 	// log error
-	log.Println("encode error", err)
+	if err != nil {
+		log.Println("encode error", err)
+	}
 }
 
 func (s *Server) GetCharacterInfo(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +151,9 @@ func (s *Server) GetCharacterInfo(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(info)
 	// log error
-	log.Println("encode error", err)
+	if err != nil {
+		log.Println("encode error", err)
+	}
 }
 
 func buildCharacterInfoCacheKey(id int) string {

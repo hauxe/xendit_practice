@@ -20,7 +20,7 @@ func TestUpdateMarvelCharacterList(t *testing.T) {
 		c.Set(cacheKey, val)
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		updateMarvelCharacterList(c, cacheKey, api)
 
 		list, ok := c.Get(cacheKey)
@@ -35,7 +35,7 @@ func TestUpdateMarvelCharacterList(t *testing.T) {
 		c.Set(cacheKey, val)
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		updateMarvelCharacterList(c, cacheKey, api)
 
 		v, ok := c.Get(cacheKey)
@@ -43,7 +43,7 @@ func TestUpdateMarvelCharacterList(t *testing.T) {
 		var list []int
 		err = json.Unmarshal([]byte(v), &list)
 		require.NoError(t, err)
-		require.Len(t, list, 1000)
+		require.GreaterOrEqual(t, len(list), 1000)
 	})
 }
 
@@ -73,7 +73,7 @@ func TestCheckMarvelUpdate(t *testing.T) {
 		c.Set(cacheKey, "[0,1,2]")
 		testServer, err := test.NewTestServer(test.NewMockHandler("invalid json"))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		shouldUpdate, err := checkMarvelUpdate(c, cacheKey, api)
 		require.Error(t, err)
 		require.False(t, shouldUpdate)
@@ -85,7 +85,7 @@ func TestCheckMarvelUpdate(t *testing.T) {
 		c.Set(cacheKey, "[0,1,2]")
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData1stCall))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		shouldUpdate, err := checkMarvelUpdate(c, cacheKey, api)
 		require.NoError(t, err)
 		require.False(t, shouldUpdate)
@@ -97,7 +97,7 @@ func TestCheckMarvelUpdate(t *testing.T) {
 		c.Set(cacheKey, "[0,1,2]")
 		testServer, err := test.NewTestServer(test.NewMockHandler(test.SampleAllData))
 		require.NoError(t, err)
-		api := marvel.NewAPI(testServer.URL, "", "")
+		api := marvel.NewAPI(test.GetHost(testServer.URL), "", "")
 		shouldUpdate, err := checkMarvelUpdate(c, cacheKey, api)
 		require.NoError(t, err)
 		require.True(t, shouldUpdate)
