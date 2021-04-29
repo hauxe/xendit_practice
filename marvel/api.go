@@ -59,9 +59,9 @@ type marvelAPIData struct {
 }
 
 type MarvelCharacter struct {
-	ID          int    `json:"id,omitempty"`
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 // GetCharacterInfo get character info by id

@@ -20,7 +20,7 @@ const (
 	Characters_Cache_Key     = "characters"
 	Character_Info_Cache_Key = "character_info"
 
-	API_PUBLIC_KEY  = "API_PUCLIC_KEY"
+	API_PUBLIC_KEY  = "API_PUBLIC_KEY"
 	API_PRIVATE_KEY = "API_PRIVATE_KEY"
 
 	UpdateCharacterJobMinute = 24 * 60 // 1 day
